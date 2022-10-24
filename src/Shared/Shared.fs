@@ -3,16 +3,18 @@ namespace Shared
 open System
 
 type ChocolateBar =
-       { Name      : string
-         Footprint : Footprint
-         Price     : float
-         Impact    : Impact option
-         TruePrice : float option }
-and Footprint =
-       { CO2 : float
-         CH4 : float }
-and Impact =
-       { ClimateChange : float }
+       {
+        Name      : string
+        // Footprint : Footprint
+        // Price     : float
+        // Impact    : Impact option
+        // TruePrice : float option
+       }
+// and Footprint =
+//        { CO2 : float
+//          CH4 : float }
+// and Impact =
+//        { ClimateChange : float }
 
 module ChocolateBar =
     let isValidValue (value : float) = value >= 0.0
@@ -27,6 +29,9 @@ module ChocolateBar =
         // (inputChocolateBar.Price |> isValidValue) &&
         // (inputChocolateBar.Impact |> Option.isNone) &&
         // (inputChocolateBar.TruePrice |> Option.isNone)
+    
+    let create (name: string) =
+        { Name = name }
 
 module Route =
     let builder typeName methodName =
