@@ -4,37 +4,37 @@ open Elmish
 open Fable.Remoting.Client
 open Shared
 
-type Model = { Todos: Todo list; Input: string }
+type Model = { ChocolateBars: ChocolateBar list; Input: string }
 
 type Msg =
-    | GotTodos of Todo list
+    | GotChocolateBars of ChocolateBar list
     | SetInput of string
-    | AddTodo
-    | AddedTodo of Todo
+    | AddChocolateBar
+    | AddedChocolateBar of ChocolateBar
 
-let todosApi =
+let chocolateBarsApi =
     Remoting.createApi ()
     |> Remoting.withRouteBuilder Route.builder
-    |> Remoting.buildProxy<ITodosApi>
+    |> Remoting.buildProxy<IChocolateBarApi>
 
 let init () : Model * Cmd<Msg> =
-    let model = { Todos = []; Input = "" }
+    let model = { ChocolateBars = []; Input = "" }
 
-    let cmd = Cmd.OfAsync.perform todosApi.getTodos () GotTodos
+    let cmd = Cmd.OfAsync.perform chocolateBarsApi.getChocolateBars () GotChocolateBars
 
     model, cmd
 
 let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
     match msg with
-    | GotTodos todos -> { model with Todos = todos }, Cmd.none
+    | GotChocolateBars chocolateBars -> { model with ChocolateBars = chocolateBars }, Cmd.none
     | SetInput value -> { model with Input = value }, Cmd.none
-    | AddTodo ->
-        let todo = Todo.create model.Input
+    | AddChocolateBar ->
+        let chocolateBar = ChocolateBar.create model.Input
 
-        let cmd = Cmd.OfAsync.perform todosApi.addTodo todo AddedTodo
+        let cmd = Cmd.OfAsync.perform chocolateBarsApi.addChocolateBar chocolateBar AddedChocolateBar
 
         { model with Input = "" }, cmd
-    | AddedTodo todo -> { model with Todos = model.Todos @ [ todo ] }, Cmd.none
+    | AddedChocolateBar chocolateBar -> { model with ChocolateBars = model.ChocolateBars @ [ chocolateBar ] }, Cmd.none
 
 open Feliz
 open Feliz.Bulma
@@ -57,8 +57,8 @@ let containerBox (model: Model) (dispatch: Msg -> unit) =
     Bulma.box [
         Bulma.content [
             Html.ol [
-                for todo in model.Todos do
-                    Html.li [ prop.text todo.Description ]
+                for chocolateBar in model.ChocolateBars do
+                    Html.li [ prop.text chocolateBar.Name ]
             ]
         ]
         Bulma.field.div [
@@ -69,16 +69,26 @@ let containerBox (model: Model) (dispatch: Msg -> unit) =
                     prop.children [
                         Bulma.input.text [
                             prop.value model.Input
-                            prop.placeholder "What needs to be done?"
+                            prop.placeholder "What is the name?"
                             prop.onChange (fun x -> SetInput x |> dispatch)
                         ]
+                        // Bulma.input.text [
+                        //     prop.value model.Input
+                        //     prop.placeholder "What is the CO2 footprint?"
+                        //     prop.onChange (fun x -> SetInput x |> dispatch)
+                        // ]
+                        // Bulma.input.text [
+                        //     prop.value model.Input
+                        //     prop.placeholder "What is the CH4 footprint?"
+                        //     prop.onChange (fun x -> SetInput x |> dispatch)
+                        // ]
                     ]
                 ]
                 Bulma.control.p [
                     Bulma.button.a [
                         color.isPrimary
-                        prop.disabled (Todo.isValid model.Input |> not)
-                        prop.onClick (fun _ -> dispatch AddTodo)
+                        prop.disabled (ChocolateBar.isValidName model.Input |> not)
+                        prop.onClick (fun _ -> dispatch AddChocolateBar)
                         prop.text "Add"
                     ]
                 ]

@@ -7,37 +7,30 @@ open Saturn
 open Shared
 
 module Storage =
-    let todos = ResizeArray()
+    let chocolateBars = ResizeArray()
 
-    let addTodo (todo: Todo) =
-        if Todo.isValid todo.Description then
-            todos.Add todo
+    let addChocolateBar (chocolateBar: ChocolateBar) =
+        if ChocolateBar.isValidChocolateBar(chocolateBar) then
+            chocolateBars.Add chocolateBar
             Ok()
         else
-            Error "Invalid todo"
+            Error "Invalid chocolate bar"
 
-    do
-        addTodo (Todo.create "Create new SAFE project")
-        |> ignore
-
-        addTodo (Todo.create "Write your app") |> ignore
-        addTodo (Todo.create "Ship it !!!") |> ignore
-
-let todosApi =
-    { getTodos = fun () -> async { return Storage.todos |> List.ofSeq }
-      addTodo =
-        fun todo ->
+let chocolateBarsApi =
+    { getChocolateBars = fun () -> async { return Storage.chocolateBars |> List.ofSeq }
+      addChocolateBar =
+        fun chocolateBar ->
             async {
                 return
-                    match Storage.addTodo todo with
-                    | Ok () -> todo
+                    match Storage.addChocolateBar chocolateBar with
+                    | Ok () -> chocolateBar
                     | Error e -> failwith e
             } }
 
 let webApp =
     Remoting.createApi ()
     |> Remoting.withRouteBuilder Route.builder
-    |> Remoting.fromValue todosApi
+    |> Remoting.fromValue chocolateBarsApi
     |> Remoting.buildHttpHandler
 
 let app =
