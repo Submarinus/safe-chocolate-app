@@ -132,15 +132,29 @@ let renderChocolateBar (chocolateBar : ChocolateBar) (dispatch: Msg -> unit) =
         ]
     ]
 
+let chocolateBarLegend =
+    div [ "box" ] [
+        div [ "columns"; "is-mobile"; "is-vcentered" ] [
+            div [ "column" ] [
+                Html.p [
+                prop.text "Name"
+                ]
+            ]
+            div [ "column" ] [
+                Html.p [
+                prop.text "Price"
+                ]
+            ]
+        ]
+    ]
+
 let chocolateBars (state: State) (dispatch: Msg -> unit) =
   Html.ul [
     for chocolateBar in state.ChocolateBars ->
-    Html.li [
-      prop.classes ["box"; "subtitle"]
-      prop.text chocolateBar.Name
-      prop.value chocolateBar.Price
+    Html.ul [
+        renderChocolateBar chocolateBar dispatch
+        ]
     ]
-  ]
 
 let appTitle =
   Html.p [
@@ -156,6 +170,7 @@ let render (state: State) (dispatch: Msg -> unit) =
       inputName state dispatch
       inputPrice state dispatch
       createChocolateBar state dispatch
+      chocolateBarLegend
       chocolateBars state dispatch
     ]
   ]
