@@ -48,8 +48,9 @@ let update (msg: Msg) (state: State) : State =
                                             state.InputValue
 
         { state with
-            InputName = ""
-            InputValue = 0.0
+            // commented out for now because they would interfere with each other
+            // InputName = ""
+            // InputValue = 0.0
             ChocolateBars = List.append state.ChocolateBars [chocolateBar]
             }
     | AddedChocolateBar chocolateBar -> { state with ChocolateBars = state.ChocolateBars @ [ chocolateBar ] }
