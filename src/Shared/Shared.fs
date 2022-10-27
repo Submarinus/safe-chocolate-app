@@ -6,7 +6,7 @@ type ChocolateBar =
        {
         Name      : string
         // Footprint : Footprint
-        // Price     : float
+        Price     : float
         // Impact    : Impact option
         // TruePrice : float option
        }
@@ -23,15 +23,23 @@ module ChocolateBar =
     let isValidChocolateBar (inputChocolateBar : ChocolateBar) =
 
         //return bool value indicating whether input data is valid
-        (inputChocolateBar.Name |> isValidName) 
+        (inputChocolateBar.Name |> isValidName) &&
         // (inputChocolateBar.Footprint.CO2 |> isValidValue) &&
         // (inputChocolateBar.Footprint.CH4 |> isValidValue) &&
-        // (inputChocolateBar.Price |> isValidValue) &&
+        (inputChocolateBar.Price |> isValidValue)
         // (inputChocolateBar.Impact |> Option.isNone) &&
         // (inputChocolateBar.TruePrice |> Option.isNone)
     
-    let create (name: string) =
-        { Name = name }
+    let create (name: string) (price : float) =
+        {
+            Name = name
+            Price = price
+        }
+    
+    let createEmpty() = {
+        Name = ""
+        Price = 0.0
+    }
 
 module Route =
     let builder typeName methodName =

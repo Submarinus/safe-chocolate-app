@@ -4,11 +4,16 @@ open Elmish
 open Fable.Remoting.Client
 open Shared
 
-type Model = { ChocolateBars: ChocolateBar list; Input: string }
+type State = {
+    ChocolateBars : ChocolateBar list
+    InputName : string
+    InputValue : float
+}
 
 type Msg =
     | GotChocolateBars of ChocolateBar list
-    | SetInput of string
+    | SetInputName of string
+    | SetInputValue of float
     | AddChocolateBar
     | AddedChocolateBar of ChocolateBar
 
@@ -17,24 +22,37 @@ let chocolateBarsApi =
     |> Remoting.withRouteBuilder Route.builder
     |> Remoting.buildProxy<IChocolateBarApi>
 
-let init () : Model * Cmd<Msg> =
-    let model = { ChocolateBars = []; Input = "" }
+let init() = {
+    ChocolateBars = [
+        {
+            Name = "Tony's #1"
+            Price = 3.2
+            }
+        {
+            Name = "Tony's #2"
+            Price = 3.0
+            }
+    ]
+    InputName = ""
+    InputValue = 0.0
+    }
 
-    let cmd = Cmd.OfAsync.perform chocolateBarsApi.getChocolateBars () GotChocolateBars
-
-    model, cmd
-
-let update (msg: Msg) (model: Model) : Model * Cmd<Msg> =
+let update (msg: Msg) (state: State) : State =
     match msg with
-    | GotChocolateBars chocolateBars -> { model with ChocolateBars = chocolateBars }, Cmd.none
-    | SetInput value -> { model with Input = value }, Cmd.none
+    | GotChocolateBars chocolateBars -> { state with ChocolateBars = chocolateBars }
+    | SetInputName name -> { state with InputName = name }
+    | SetInputValue value -> { state with InputValue = value}
     | AddChocolateBar ->
-        let chocolateBar = ChocolateBar.create model.Input
+        let chocolateBar = ChocolateBar.create
+                                            state.InputName
+                                            state.InputValue
 
-        let cmd = Cmd.OfAsync.perform chocolateBarsApi.addChocolateBar chocolateBar AddedChocolateBar
-
-        { model with Input = "" }, cmd
-    | AddedChocolateBar chocolateBar -> { model with ChocolateBars = model.ChocolateBars @ [ chocolateBar ] }, Cmd.none
+        { state with
+            InputName = ""
+            InputValue = 0.0
+            ChocolateBars = List.append state.ChocolateBars [chocolateBar]
+            }
+    | AddedChocolateBar chocolateBar -> { state with ChocolateBars = state.ChocolateBars @ [ chocolateBar ] }
 
 open Feliz
 open Feliz.Bulma
@@ -53,13 +71,16 @@ let navBrand =
         ]
     ]
 
-let containerBox (model: Model) (dispatch: Msg -> unit) =
+let containerBox (state : State) (dispatch: Msg -> unit) =
     Bulma.box [
         Bulma.content [
-            Html.ol [
-                for chocolateBar in model.ChocolateBars do
-                    Html.li [ prop.text chocolateBar.Name ]
-            ]
+                for chocolateBar in state.ChocolateBars do
+                    Html.li [
+                        Html.li [
+                            prop.text chocolateBar.Name
+                            prop.value chocolateBar.Price
+                        ]
+                    ]
         ]
         Bulma.field.div [
             field.isGrouped
@@ -68,26 +89,39 @@ let containerBox (model: Model) (dispatch: Msg -> unit) =
                     control.isExpanded
                     prop.children [
                         Bulma.input.text [
-                            prop.value model.Input
-                            prop.placeholder "What is the name?"
-                            prop.onChange (fun x -> SetInput x |> dispatch)
+                            prop.value state.InputName
+                            prop.placeholder "What is the name of the chocolate bar?"
+                            prop.onChange (fun x -> SetInputName x |> dispatch)
                         ]
-                        // Bulma.input.text [
-                        //     prop.value model.Input
-                        //     prop.placeholder "What is the CO2 footprint?"
-                        //     prop.onChange (fun x -> SetInput x |> dispatch)
-                        // ]
-                        // Bulma.input.text [
-                        //     prop.value model.Input
-                        //     prop.placeholder "What is the CH4 footprint?"
-                        //     prop.onChange (fun x -> SetInput x |> dispatch)
-                        // ]
                     ]
                 ]
                 Bulma.control.p [
                     Bulma.button.a [
                         color.isPrimary
-                        prop.disabled (ChocolateBar.isValidName model.Input |> not)
+                        prop.disabled (ChocolateBar.isValidName state.InputName |> not)
+                        prop.onClick (fun _ -> dispatch AddChocolateBar)
+                        prop.text "Add"
+                    ]
+                ]
+            ]
+        ]
+        Bulma.field.div [
+            field.isGrouped
+            prop.children [
+                Bulma.control.p [
+                    control.isExpanded
+                    prop.children [
+                        Bulma.input.number [
+                            prop.value state.InputValue
+                            prop.placeholder "What is the price of the chocolate bar?"
+                            prop.onChange (fun x -> SetInputValue x |> dispatch)
+                        ]
+                    ]
+                ]
+                Bulma.control.p [
+                    Bulma.button.a [
+                        color.isPrimary
+                        prop.disabled (ChocolateBar.isValidValue state.InputValue |> not)
                         prop.onClick (fun _ -> dispatch AddChocolateBar)
                         prop.text "Add"
                     ]
@@ -96,7 +130,7 @@ let containerBox (model: Model) (dispatch: Msg -> unit) =
         ]
     ]
 
-let view (model: Model) (dispatch: Msg -> unit) =
+let view (state : State) (dispatch: Msg -> unit) =
     Bulma.hero [
         hero.isFullHeight
         color.isPrimary
@@ -121,7 +155,7 @@ let view (model: Model) (dispatch: Msg -> unit) =
                                 text.hasTextCentered
                                 prop.text "safe_chocolate_app"
                             ]
-                            containerBox model dispatch
+                            containerBox state dispatch
                         ]
                     ]
                 ]
