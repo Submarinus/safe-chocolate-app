@@ -57,108 +57,105 @@ let update (msg: Msg) (state: State) : State =
 open Feliz
 open Feliz.Bulma
 
-let navBrand =
-    Bulma.navbarBrand.div [
-        Bulma.navbarItem.a [
-            prop.href "https://safe-stack.github.io/"
-            navbarItem.isActive
-            prop.children [
-                Html.img [
-                    prop.src "/favicon.png"
-                    prop.alt "Logo"
-                ]
-            ]
-        ]
+// Helper function to easily construct div with only classes and children
+let div (classes: string list) (children: ReactElement list) =
+    Html.div [
+        prop.classes classes
+        prop.children children
     ]
 
-let containerBox (state : State) (dispatch: Msg -> unit) =
-    Bulma.box [
-        Bulma.content [
-                for chocolateBar in state.ChocolateBars do
-                    Html.li [
-                        Html.li [
-                            prop.text chocolateBar.Name
-                            prop.value chocolateBar.Price
-                        ]
-                    ]
-        ]
-        Bulma.field.div [
-            field.isGrouped
-            prop.children [
-                Bulma.control.p [
-                    control.isExpanded
-                    prop.children [
-                        Bulma.input.text [
-                            prop.value state.InputName
-                            prop.placeholder "What is the name of the chocolate bar?"
-                            prop.onChange (fun x -> SetInputName x |> dispatch)
-                        ]
-                    ]
-                ]
-                Bulma.control.p [
-                    Bulma.button.a [
-                        color.isPrimary
-                        prop.disabled (ChocolateBar.isValidName state.InputName |> not)
-                        prop.onClick (fun _ -> dispatch AddChocolateBar)
-                        prop.text "Add"
-                    ]
-                ]
-            ]
-        ]
-        Bulma.field.div [
-            field.isGrouped
-            prop.children [
-                Bulma.control.p [
-                    control.isExpanded
-                    prop.children [
-                        Bulma.input.number [
-                            prop.value state.InputValue
-                            prop.placeholder "What is the price of the chocolate bar?"
-                            prop.onChange (fun x -> SetInputValue x |> dispatch)
-                        ]
-                    ]
-                ]
-                Bulma.control.p [
-                    Bulma.button.a [
-                        color.isPrimary
-                        prop.disabled (ChocolateBar.isValidValue state.InputValue |> not)
-                        prop.onClick (fun _ -> dispatch AddChocolateBar)
-                        prop.text "Add"
-                    ]
-                ]
-            ]
-        ]
-    ]
-
-let view (state : State) (dispatch: Msg -> unit) =
-    Bulma.hero [
-        hero.isFullHeight
-        color.isPrimary
-        prop.style [
-            style.backgroundSize "cover"
-            style.backgroundImageUrl "https://unsplash.it/1200/900?random"
-            style.backgroundPosition "no-repeat center center fixed"
-        ]
+let inputName (state: State) (dispatch: Msg -> unit) =
+  Html.div [
+    prop.classes [ "field"; "has-addons" ]
+    prop.children [
+      Html.div [
+        prop.classes [ "control"; "is-expanded"]
         prop.children [
-            Bulma.heroHead [
-                Bulma.navbar [
-                    Bulma.container [ navBrand ]
-                ]
+          Html.input [
+            prop.classes [ "input"; "is-medium" ]
+            prop.valueOrDefault state.InputName
+            prop.placeholder "What is the name of the chocolate bar?"
+            prop.onChange (SetInputName >> dispatch)
+          ]
+        ]
+      ]
+    ]
+  ]
+
+let inputPrice (state: State) (dispatch: Msg -> unit) =
+  Html.div [
+    prop.classes [ "field"; "has-addons" ]
+    prop.children [
+      Html.div [
+        prop.classes [ "control"; "is-expanded"]
+        prop.children [
+          Html.input [
+            prop.classes [ "input"; "is-medium" ]
+            prop.valueOrDefault state.InputValue
+            prop.placeholder "What is the price of the chocolate bar?"
+            prop.onChange (SetInputValue >> dispatch)
+          ]
+        ]
+      ]
+    ]
+  ]
+
+let createChocolateBar (state : State) (dispatch : Msg -> unit) =
+      Html.div [
+        prop.className "control"
+        prop.children [
+          Html.button [
+            prop.classes [ "button"; "is-primary"; "is-medium" ]
+            prop.onClick (fun _ -> dispatch AddChocolateBar)
+            prop.children [
+              Html.i [ prop.classes [ "fa"; "fa-plus" ] ]
             ]
-            Bulma.heroBody [
-                Bulma.container [
-                    Bulma.column [
-                        column.is6
-                        column.isOffset3
-                        prop.children [
-                            Bulma.title [
-                                text.hasTextCentered
-                                prop.text "safe_chocolate_app"
-                            ]
-                            containerBox state dispatch
-                        ]
-                    ]
-                ]
+          ]
+        ]
+      ]
+
+let renderChocolateBar (chocolateBar : ChocolateBar) (dispatch: Msg -> unit) =
+    div [ "box" ] [
+        div [ "columns"; "is-mobile"; "is-vcentered" ] [
+        div [ "column" ] [
+            Html.p [
+            prop.className "Name"
+            prop.text chocolateBar.Name
             ]
         ]
+        div [ "column" ] [
+            Html.p [
+            prop.className "Price"
+            prop.text chocolateBar.Price
+            ]
+        ]
+        ]
     ]
+
+let chocolateBars (state: State) (dispatch: Msg -> unit) =
+  Html.ul [
+    for chocolateBar in state.ChocolateBars ->
+    Html.li [
+      prop.classes ["box"; "subtitle"]
+      prop.text chocolateBar.Name
+      prop.value chocolateBar.Price
+    ]
+  ]
+
+let appTitle =
+  Html.p [
+    prop.className "title"
+    prop.text "Chocolate Bar App"
+  ]
+
+let render (state: State) (dispatch: Msg -> unit) =
+  Html.div [
+    prop.style [ style.padding 20 ]
+    prop.children [
+      appTitle
+      inputName state dispatch
+      inputPrice state dispatch
+      createChocolateBar state dispatch
+      chocolateBars state dispatch
+    ]
+  ]
