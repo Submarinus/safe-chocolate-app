@@ -43,16 +43,17 @@ let update (msg: Msg) (state: State) : State =
     | SetInputName name -> { state with InputName = name }
     | SetInputValue value -> { state with InputValue = value }
     | AddChocolateBar ->
-        let chocolateBar = 
+        let chocolateBar =
             ChocolateBar.create
                 state.InputName
                 state.InputValue
 
         { state with
-            // commented out for now because they would interfere with each other
-            // InputName = ""
-            // InputValue = 0.0
-            ChocolateBars = List.append state.ChocolateBars [chocolateBar]
+            InputName = ""
+            InputValue = 0.0
+            ChocolateBars = 
+                printfn "Chocolate bar added"
+                List.append state.ChocolateBars [chocolateBar]
             }
     | AddedChocolateBar chocolateBar -> { state with ChocolateBars = state.ChocolateBars @ [ chocolateBar ] }
 
@@ -95,7 +96,14 @@ let inputPrice (state: State) (dispatch: Msg -> unit) =
             prop.classes [ "input"; "is-medium" ]
             prop.valueOrDefault state.InputValue
             prop.placeholder "What is the price of the chocolate bar?"
-            prop.onChange (SetInputValue >> dispatch)
+            prop.onChange (fun (rawInput: string) -> 
+                try 
+                    let parsedValue = float rawInput 
+                    SetInputValue parsedValue |> dispatch 
+                with 
+                    | :? System.FormatException -> 
+                        printfn "Not a float"
+            )
           ]
         ]
       ]
