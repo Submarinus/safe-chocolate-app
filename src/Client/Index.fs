@@ -41,11 +41,12 @@ let update (msg: Msg) (state: State) : State =
     match msg with
     | GotChocolateBars chocolateBars -> { state with ChocolateBars = chocolateBars }
     | SetInputName name -> { state with InputName = name }
-    | SetInputValue value -> { state with InputValue = value}
+    | SetInputValue value -> { state with InputValue = value }
     | AddChocolateBar ->
-        let chocolateBar = ChocolateBar.create
-                                            state.InputName
-                                            state.InputValue
+        let chocolateBar = 
+            ChocolateBar.create
+                state.InputName
+                state.InputValue
 
         { state with
             // commented out for now because they would interfere with each other
