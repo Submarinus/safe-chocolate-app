@@ -98,14 +98,6 @@ let inputPrice (state: State) (dispatch: Msg -> unit) =
             prop.valueOrDefault state.InputValue
             prop.placeholder "What is the price of the chocolate bar?"
             prop.onChange (SetInputValue >> dispatch)
-            // prop.onChange (fun (rawInput: string) -> 
-                // try 
-                //     let parsedValue = float rawInput 
-                //     SetInputValue parsedValue |> dispatch 
-                // with 
-                //     | :? System.FormatException -> 
-                //         printfn "Not a float"
-            // )
           ]
         ]
       ]
