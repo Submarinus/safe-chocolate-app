@@ -93,17 +93,19 @@ let inputPrice (state: State) (dispatch: Msg -> unit) =
         prop.classes [ "control"; "is-expanded"]
         prop.children [
           Html.input [
-            prop.classes [ "input"; "is-medium" ]
+            prop.classes [ "input"; "is-medium"; "number" ]
+            prop.type'.number
             prop.valueOrDefault state.InputValue
             prop.placeholder "What is the price of the chocolate bar?"
-            prop.onChange (fun (rawInput: string) -> 
-                try 
-                    let parsedValue = float rawInput 
-                    SetInputValue parsedValue |> dispatch 
-                with 
-                    | :? System.FormatException -> 
-                        printfn "Not a float"
-            )
+            prop.onChange (SetInputValue >> dispatch)
+            // prop.onChange (fun (rawInput: string) -> 
+                // try 
+                //     let parsedValue = float rawInput 
+                //     SetInputValue parsedValue |> dispatch 
+                // with 
+                //     | :? System.FormatException -> 
+                //         printfn "Not a float"
+            // )
           ]
         ]
       ]
