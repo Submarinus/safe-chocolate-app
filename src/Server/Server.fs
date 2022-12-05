@@ -10,7 +10,7 @@ module Storage =
     let chocolateBars = ResizeArray()
 
     let addChocolateBar (chocolateBar: ChocolateBar) =
-        if ChocolateBar.isValidChocolateBar(chocolateBar) then
+        if ChocolateBar.isValidName(chocolateBar.Name) then
             chocolateBars.Add chocolateBar
             Ok()
         else
