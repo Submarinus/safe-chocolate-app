@@ -51,7 +51,7 @@ let update (msg: Msg) (state: State) : State =
         { state with
             InputName = ""
             InputValue = 0.0
-            ChocolateBars = 
+            ChocolateBars =
                 printfn "Chocolate bar added"
                 List.append state.ChocolateBars [chocolateBar]
             }
@@ -74,6 +74,9 @@ let inputName (state: State) (dispatch: Msg -> unit) =
       Html.div [
         prop.classes [ "control"; "is-expanded"]
         prop.children [
+          Html.p [
+            prop.text "Name: "
+          ]
           Html.input [
             prop.classes [ "input"; "is-medium" ]
             prop.valueOrDefault state.InputName
@@ -92,6 +95,9 @@ let inputPrice (state: State) (dispatch: Msg -> unit) =
       Html.div [
         prop.classes [ "control"; "is-expanded"]
         prop.children [
+          Html.p [
+            prop.text "Price: "
+          ]
           Html.input [
             prop.classes [ "input"; "is-medium"; "number" ]
             prop.type'.number
